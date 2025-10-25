@@ -1,0 +1,136 @@
+# Protocol
+Open Short Path First (OSPF)
+
+# Require
+Configure hostnames
+Assign IP address on interface routers and loopback.
+Configure OSPF protocol
+Configure OSPF virtual link
+Determine and analysis DR, BDR router 
+Create area stub, area totally stubby, and not so stubby area (NSSA)
+Analysis packet log OSPF protocol
+
+# Configuration
+## R1
+Router#enable
+Router#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R1
+R1(config)#interface fa0/0
+R1(config-if)#ip address 172.16.10.1 255.255.255.252
+R1(config-if)#no shutdown
+R1(config-if)#exit
+R1(config)#interface fa0/1
+R1(config-if)#ip address 172.16.10.5 255.255.255.252
+R1(config-if)#no shutdown
+R1(config-if)#exit
+R1(config)#interface Loopback0
+R1(config-if)#ip address 10.10.1.1 255.255.255.255
+R1(config-if)#exit
+R1(config)#router ospf 1
+R1(config-router)#network 172.16.10.0 0.0.0.3 area 0
+R1(config-router)#network 172.16.10.4 0.0.0.3 area 0
+
+## R2
+Router#enable
+Router#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R2
+R2(config)#interface fa0/0
+R2(config-if)#ip address 172.16.10.2 255.255.255.252
+R2(config-if)#no shutdown
+R2(config-if)#exit
+R2(config)#interface fa0/1
+R2(config-if)#ip address 172.16.10.9 255.255.255.252
+R2(config-if)#no shutdown
+R2(config-if)#exit
+R2(config)#interface fa1/0
+R2(config-if)#ip address 172.16.10.13 255.255.255.252
+R2(config-if)#no shutdown
+R2(config-if)#exit
+R2(config)#interface Loopback0
+R2(config-if)#ip address 10.10.2.2 255.255.255.255
+R2(config-if)#exit
+R2(config)#router ospf 1
+R2(config-router)#network 172.16.10.0 0.0.0.3 area 0
+R2(config-router)#network 172.16.10.8 0.0.0.3 area 0
+R2(config-router)#network 172.16.10.12 0.0.0.3 area 0
+R2(config-router)#area 2 virtual-link 10.10.5.5
+
+
+## R3
+Router#enable
+Router#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R3
+R3(config)#interface fa0/0
+R3(config-if)#ip address 172.16.10.6 255.255.255.252
+R3(config-if)#no shutdown
+R3(config-if)#exit
+R3(config)#interface fa0/1
+R3(config-if)#ip address 172.16.10.17 255.255.255.252
+R3(config-if)#no shutdown
+R3(config-if)#exit
+R3(config)#interface Loopback0
+R3(config-if)#ip address 10.10.3.3 255.255.255.255
+R3(config-if)#exit
+R3(config)#router ospf 1
+R3(config-router)#network 172.16.10.4 0.0.0.3 area 0
+R3(config-router)#network 172.16.10.16 0.0.0.3 area 0
+
+## R4
+Router#enable
+Router#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R4
+R4(config)#interface fa0/0
+R4(config-if)#ip address 172.16.10.10 255.255.255.252
+R4(config-if)#no shutdown
+R4(config-if)#exit
+R4(config)#interface fa0/1
+R4(config-if)#ip address 172.16.10.21 255.255.255.252
+R4(config-if)#no shutdown
+R4(config-if)#exit
+R4(config)#interface Loopback0
+R4(config-if)#ip address 10.10.4.4 255.255.255.255
+R4(config-if)#exit
+R4(config)#router ospf 1
+R4(config-router)#network 172.16.10.8 0.0.0.3 area 0
+R4(config-router)#network 172.16.10.20 0.0.0.3 area 0
+
+## R5
+Router#enable
+Router#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R5
+R5(config)#interface fa0/0
+R5(config-if)#ip address 172.16.10.22 255.255.255.252
+R5(config-if)#no shutdown
+R5(config-if)#exit
+R5(config)#interface fa0/1
+R5(config-if)#ip address 172.16.10.14 255.255.255.252
+R5(config-if)#no shutdown
+R5(config-if)#exit
+R5(config)#interface fa1/0
+R5(config-if)#ip address 172.16.10.18 255.255.255.252
+R5(config-if)#no shutdown
+R5(config-if)#exit
+R5(config)#interface fa1/1
+R5(config-if)#ip address 172.16.10.25 255.255.255.252
+R5(config-if)#no shutdown
+R5(config-if)#exit
+R5(config)#interface Loopback0
+R5(config-if)#ip address 10.10.5.5 255.255.255.255
+R5(config-if)#exit
+R5(config)#router ospf 1
+R5(config-router)#network 172.16.10.20 0.0.0.3 area 0
+R5(config-router)#network 172.16.10.12 0.0.0.3 area 0
+R5(config-router)#network 172.16.10.16 0.0.0.3 area 0
+R5(config-router)#network 172.16.10.24 0.0.0.3 area 0
+R5(config-router)#area 2 virtual-link 10.10.2.2
+
+
+
+
+
+
