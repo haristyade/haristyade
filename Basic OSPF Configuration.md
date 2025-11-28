@@ -2,12 +2,10 @@
 Open Short Path First (OSPF) Multi-Area
 
 # Requirement
-* Configure hostname
+* Configure hostname.
 * Assign IP address on interface routers and loopback.
-* Configure OSPF protocol
-* Configure OSPF virtual link
-* Verification and analysis table route
-* Troubleshoot
+* Configure OSPF protocol.
+* Configure OSPF virtual link.
 
 # Configuration
 **| R1 - Internal Backbone Router**
@@ -60,8 +58,9 @@ R2(config-if)#exit
 
 R2(config)#router ospf 1
 R2(config-router)#network 172.16.10.0 0.0.0.3 area 0
-R2(config-router)#network 172.16.10.8 0.0.0.3 area 0
-R2(config-router)#network 172.16.10.12 0.0.0.3 area 0
+R2(config-router)#network 172.16.10.8 0.0.0.3 area 1
+R2(config-router)#network 172.16.10.12 0.0.0.3 area 2
+R2(config-router)#network 172.16.10.28 0.0.0.3 area 2
 R2(config-router)#area 2 virtual-link 10.10.5.5
 ```
 \
@@ -86,7 +85,8 @@ R3(config-if)#exit
 
 R3(config)#router ospf 1
 R3(config-router)#network 172.16.10.4 0.0.0.3 area 0
-R3(config-router)#network 172.16.10.16 0.0.0.3 area 0
+R3(config-router)#network 172.16.10.16 0.0.0.3 area 2
+R3(config-router)#network 172.16.10.28 0.0.0.3 area 2
 ```
 \
 **| R4 - Internal Router**
@@ -109,8 +109,8 @@ R4(config-if)#ip address 10.10.4.4 255.255.255.255
 R4(config-if)#exit
 
 R4(config)#router ospf 1
-R4(config-router)#network 172.16.10.8 0.0.0.3 area 0
-R4(config-router)#network 172.16.10.20 0.0.0.3 area 0
+R4(config-router)#network 172.16.10.8 0.0.0.3 area 1
+R4(config-router)#network 172.16.10.20 0.0.0.3 area 1
 ```
 \
 **| R5 - Area Border Router (ABR)**
@@ -141,10 +141,10 @@ R5(config-if)#ip address 10.10.5.5 255.255.255.255
 R5(config-if)#exit
 
 R5(config)#router ospf 1
-R5(config-router)#network 172.16.10.20 0.0.0.3 area 0
-R5(config-router)#network 172.16.10.12 0.0.0.3 area 0
-R5(config-router)#network 172.16.10.16 0.0.0.3 area 0
-R5(config-router)#network 172.16.10.24 0.0.0.3 area 0
+R5(config-router)#network 172.16.10.20 0.0.0.3 area 1
+R5(config-router)#network 172.16.10.12 0.0.0.3 area 2
+R5(config-router)#network 172.16.10.16 0.0.0.3 area 2
+R5(config-router)#network 172.16.10.24 0.0.0.3 area 3
 R5(config-router)#area 2 virtual-link 10.10.2.2
 ```
 \
@@ -164,14 +164,14 @@ R6(config-if)#ip address 10.10.6.6 255.255.255.255
 R6(config-if)#exit
 
 R6(config)#router ospf 1
-R6(config-router)#network 172.16.10.24 0.0.0.3 area 0
+R6(config-router)#network 172.16.10.24 0.0.0.3 area 3
 ```
 
-# Verification and analysis table route
-**Hasil Ping ke setiap Router dari Router Backbone**
-Hasil dari konfigurasi protocol OSPF pada setiap router berhasil terhubung, untuk memverifikasi status koneksi pada router R1 akan dilakukan test ping ke setiap Router-ID atau IP Loopback setiap router, dan tabel routing dari router R1 sebagai router backbone dan R5 sebagai ABR yang terhubung dengan 3 area. Hasil pada tabel routing semua router sudah saling terhubung, dari hasil ping ke beberapa interface pada router juga sudah berhasil.\
+# Verification and analysis
+**Ping result to each Router**
+Result from table routing R1 show if the router have connected to all router in the network. The router complete to connect to each router, for verification the connection i tried pinging from R1 to each connected router.\
 \
-**| R1**
+**| R1 is Internal Backbone Router**
 ```powershell
 R1#show ip route | B Gateway
 Gateway of last resort is not set
@@ -183,11 +183,13 @@ C        172.16.10.0/30 is directly connected, FastEthernet0/0
 L        172.16.10.1/32 is directly connected, FastEthernet0/0
 C        172.16.10.4/30 is directly connected, FastEthernet0/1
 L        172.16.10.5/32 is directly connected, FastEthernet0/1
-O IA     172.16.10.8/30 [110/2] via 172.16.10.2, 01:15:17, FastEthernet0/0      >>>>> [to router R4 via R2]
-O IA     172.16.10.12/30 [110/2] via 172.16.10.2, 01:15:17, FastEthernet0/0     >>>>> [to router R5 via R2]
-O IA     172.16.10.16/30 [110/2] via 172.16.10.6, 01:15:22, FastEthernet0/1     >>>>> [to router R5 via R3]
-O IA     172.16.10.20/30 [110/3] via 172.16.10.2, 01:15:02, FastEthernet0/0     >>>>> [to router R5 via R2]
-O IA     172.16.10.24/30 [110/3] via 172.16.10.2, 01:15:02, FastEthernet0/0     >>>>> [to router R6 via R2]
+O IA     172.16.10.8/30 [110/2] via 172.16.10.2, 01:15:17, FastEthernet0/0      >>>>> [route to R4 via R2]
+O IA     172.16.10.12/30 [110/2] via 172.16.10.2, 01:15:17, FastEthernet0/0     >>>>> [route to R5 via R2]
+O IA     172.16.10.16/30 [110/2] via 172.16.10.6, 01:15:22, FastEthernet0/1     >>>>> [route to R5 via R3]
+O IA     172.16.10.20/30 [110/3] via 172.16.10.2, 01:15:02, FastEthernet0/0     >>>>> [route to R5 via R2]
+O IA     172.16.10.24/30 [110/3] via 172.16.10.2, 01:15:02, FastEthernet0/0     >>>>> [route to R6 via R2]
+O IA     172.16.10.28/30 [110/2] via 172.16.10.6, 00:35:06, FastEthernet0/1     >>>>> [route to R6 via R3]
+                         [110/2] via 172.16.10.2, 00:06:57, FastEthernet0/0     >>>>> [route to R6 via R2]
 ```
 
 ```powershell
@@ -229,7 +231,7 @@ Sending 5, 100-byte ICMP Echos to 172.16.10.26, timeout is 2 seconds:
 Success rate is 100 percent (5/5), round-trip min/avg/max = 72/80/92 ms
 ```
 
-**Veification virtual-link at R2**\
+**Veification virtual-link to R6**\
 **| R2**
 ```powershell
 R2#show ip ospf virtual-links
